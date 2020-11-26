@@ -4,10 +4,8 @@ const cors = require("cors");
 const { MongoClient } = require("mongodb");
 require("dotenv").config();
 
-const hosts = require("./host.js");
-
 const app = express();
-const uri = `mongodb://${hosts.mongo}:27017/?poolSize=20&w=majority`;
+const uri = `mongodb://${process.env.MONGO_HOST}:27017/?poolSize=20&w=majority`;
 
 async function connect() {
   app.listen(3001);
