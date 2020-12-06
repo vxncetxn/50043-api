@@ -1,10 +1,17 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const mysql = require("mysql");
 const { MongoClient } = require("mongodb");
 const { hosts } = require("./hosts.js");
 
 const app = express();
+const connection = mysql.createConnection({
+  host: hosts.MYSQL_HOST,
+  user: "root",
+  password: "llbrothers545",
+  insecureAuth: true,
+});
 const uri = `mongodb://${hosts.MONGO_HOST}:27017/?poolSize=20&w=majority`;
 
 async function connect() {
@@ -12,6 +19,10 @@ async function connect() {
   console.log("API listening on localhost:3001");
 }
 
+connection.connect();
+connection.changeUser({
+  database: "reviews",
+});
 MongoClient.connect(uri, async (error, client) => {
   console.log("Connected to MongoDB");
   const db = client.db("books-proj");
@@ -42,11 +53,31 @@ MongoClient.connect(uri, async (error, client) => {
         .find()
         .skip((page - 1) * quant)
         .limit(quant);
-      const data = await cursor.toArray();
+      const mongoOut = await cursor.toArray();
 
-      res.json({
-        data,
-      });
+      connection.query(
+        `SELECT COUNT(asin) AS num, AVG(overall) AS stars, asin FROM kindle_reviews WHERE asin IN (${mongoOut
+          .map((n) => `'${n.asin}'`)
+          .join(", ")}) GROUP BY asin;`,
+        function (error, results, fields) {
+          if (error) throw error;
+          const resultsMap = {};
+          results.forEach(({ asin, num, stars }) => {
+            resultsMap[asin] = { num, stars };
+          });
+
+          res.json({
+            data: mongoOut.map((n) => {
+              return {
+                asin: n.asin,
+                imUrl: n.imUrl,
+                num: resultsMap[n.asin] ? resultsMap[n.asin].num : 0,
+                stars: resultsMap[n.asin] ? resultsMap[n.asin].stars : null,
+              };
+            }),
+          });
+        }
+      );
     } catch (err) {
       return res.status(400).json({
         message: "There was a problem getting the users",
