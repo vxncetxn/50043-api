@@ -8,6 +8,8 @@ const { hosts } = require("./hosts.js");
 const app = express();
 const connection = mysql.createConnection({
   host: hosts.MYSQL_HOST,
+  user: "api-user",
+  password: "password",
 });
 const uri = `mongodb://${hosts.MONGO_HOST}:27017/?poolSize=20&w=majority`;
 
