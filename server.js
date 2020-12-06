@@ -2,10 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const { MongoClient } = require("mongodb");
-require("dotenv").config();
+const { hosts } = require("./hosts.js");
 
 const app = express();
-const uri = `mongodb://${process.env.MONGO_HOST}:27017/?poolSize=20&w=majority`;
+const uri = `mongodb://${hosts.MONGO_HOST}:27017/?poolSize=20&w=majority`;
 
 async function connect() {
   app.listen(3001);
