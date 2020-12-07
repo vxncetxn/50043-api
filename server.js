@@ -65,7 +65,7 @@ MongoClient.connect(uri, async (error, client) => {
             resultsMap[asin] = { num, stars };
           });
 
-          res.json({
+          res.status(200).json({
             data: mongoOut.map((n) => {
               return {
                 asin: n.asin,
@@ -89,12 +89,12 @@ MongoClient.connect(uri, async (error, client) => {
       const cursor = await metadata.countDocuments();
       const data = await cursor.toArray();
 
-      res.json({
+      res.status(200).json({
         data,
       });
     } catch (err) {
       return res.status(400).json({
-        message: "There was a problem getting the users",
+        message: "There was a problem getting the count",
       });
     }
   });
