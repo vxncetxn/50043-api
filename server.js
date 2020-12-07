@@ -24,7 +24,7 @@ connection.changeUser({
 });
 MongoClient.connect(uri, async (error, client) => {
   console.log("Connected to MongoDB");
-  const db = client.db("books-proj");
+  const db = client.db("books_proj");
   const metadata = db.collection("metadata");
 
   // const cursor = await metadata.find().limit(3);
